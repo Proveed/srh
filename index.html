@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PROVEED — RR.HH. PRO</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  :root{ --verde:#32CD32; --negro:#111111; --gris:#F8F9FA; --rojo:#FF4D4D; --naranja:#FF8C00; --azul:#007AFF; --morado:#AF52DE; --txt:#1a1a1a; }
+  body{ background:var(--gris); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; color:var(--txt); }
+
+  /* HEADER */
+  .header{ background:white; padding:44px 16px 14px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #eee; position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+  .h-left{ display:flex; align-items:center; gap:10px; }
+  .back-btn{ width:36px; height:36px; background:var(--gris); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; border:none; }
+  .back-btn svg{ width:18px; height:18px; stroke:var(--negro); fill:none; stroke-width:2.5; }
+  .page-title{ font-size:1rem; font-weight:800; color:var(--negro); }
+  .page-sub{ font-size:0.62rem; color:#aaa; font-weight:600; }
+  .header-badge{ background:rgba(50,205,50,0.1); color:var(--verde); font-size:0.62rem; font-weight:800; padding:4px 10px; border-radius:20px; border:1px solid rgba(50,205,50,0.2); }
+
+  /* TABS */
+  .tabs-nav{ display:flex; overflow-x:auto; scrollbar-width:none; background:white; border-bottom:1px solid #eee; padding:0 16px; }
+  .tabs-nav::-webkit-scrollbar{ display:none; }
+  .tab-btn{ padding:13px 14px; border:none; background:transparent; font-family:'Inter',sans-serif; font-size:0.74rem; font-weight:700; color:#aaa; cursor:pointer; white-space:nowrap; border-bottom:2px solid transparent; transition:0.2s; }
+  .tab-btn.active{ color:var(--verde); border-bottom-color:var(--verde); }
+
+  /* SECCIONES */
+  .section{ display:none; padding:14px 16px 100px; }
+  .section.active{ display:block; }
+
+  /* KPI */
+  .kpi-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:14px; }
+  .kpi{ background:white; border-radius:16px; padding:16px; border:1px solid #eee; box-shadow:0 2px 6px rgba(0,0,0,0.04); }
+  .kpi-val{ font-size:1.5rem; font-weight:900; color:var(--negro); }
+  .kpi-val.verde{ color:var(--verde); }
+  .kpi-val.rojo{ color:var(--rojo); }
+  .kpi-val.naranja{ color:var(--naranja); }
+  .kpi-val.azul{ color:var(--azul); }
+  .kpi-lbl{ font-size:0.62rem; color:#aaa; font-weight:600; text-transform:uppercase; margin-top:3px; }
+
+  /* CARDS */
+  .sec-title{ font-size:0.7rem; font-weight:800; color:#aaa; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; }
+  .card{ background:white; border-radius:18px; padding:16px; margin-bottom:12px; border:1px solid #eee; box-shadow:0 2px 6px rgba(0,0,0,0.04); }
+  .btn-nuevo-sm{ background:var(--negro); color:white; border:none; padding:7px 14px; border-radius:10px; font-family:'Inter',sans-serif; font-size:0.72rem; font-weight:700; cursor:pointer; }
+  .btn-verde-sm{ background:rgba(50,205,50,0.1); color:var(--verde); border:none; padding:7px 14px; border-radius:10px; font-family:'Inter',sans-serif; font-size:0.72rem; font-weight:700; cursor:pointer; }
+
+  /* EMPLEADO CARD */
+  .empleado-item{ display:flex; align-items:center; gap:12px; padding:12px; background:var(--gris); border-radius:14px; margin-bottom:8px; cursor:pointer; transition:0.15s; }
+  .empleado-item:active{ transform:scale(0.98); }
+  .emp-avatar{ width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:0.9rem; font-weight:800; color:white; flex-shrink:0; overflow:hidden; }
+  .emp-avatar img{ width:100%; height:100%; object-fit:cover; }
+  .emp-info{ flex:1; min-width:0; }
+  .emp-nombre{ font-size:0.88rem; font-weight:700; color:var(--negro); }
+  .emp-cargo{ font-size:0.72rem; color:#aaa; margin-top:2px; }
+  .emp-cedula{ font-size:0.68rem; color:#bbb; }
+  .emp-badge{ font-size:0.6rem; font-weight:700; padding:3px 8px; border-radius:6px; white-space:nowrap; flex-shrink:0; }
+  .badge-activo{ background:rgba(50,205,50,0.1); color:var(--verde); }
+  .badge-riesgo{ background:rgba(255,77,77,0.1); color:var(--rojo); }
+  .badge-pendiente{ background:rgba(255,140,0,0.1); color:var(--naranja); }
+
+  /* ASISTENCIA */
+  .asist-item{ background:white; border-radius:14px; padding:14px; margin-bottom:8px; border:1px solid #eee; display:flex; align-items:center; gap:12px; }
+  .asist-foto{ width:44px; height:44px; border-radius:12px; object-fit:cover; background:#eee; flex-shrink:0; overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; color:#aaa; }
+  .asist-foto img{ width:100%; height:100%; object-fit:cover; }
+  .asist-info{ flex:1; }
+  .asist-nombre{ font-size:0.85rem; font-weight:700; color:var(--negro); }
+  .asist-hora{ font-size:0.72rem; color:#aaa; margin-top:2px; }
+  .asist-atraso{ font-size:0.68rem; font-weight:700; }
+  .atraso-ok{ color:var(--verde); }
+  .atraso-warning{ color:var(--naranja); }
+  .atraso-danger{ color:var(--rojo); }
+  .asist-estado{ font-size:0.7rem; font-weight:700; padding:4px 10px; border-radius:8px; flex-shrink:0; }
+  .est-puntual{ background:rgba(50,205,50,0.1); color:var(--verde); }
+  .est-tarde{ background:rgba(255,140,0,0.1); color:var(--naranja); }
+  .est-falta{ background:rgba(255,77,77,0.1); color:var(--rojo); }
+
+  /* NÓMINA */
+  .nomina-item{ background:var(--gris); border-radius:14px; padding:14px; margin-bottom:8px; }
+  .nom-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .nom-nombre{ font-size:0.88rem; font-weight:700; color:var(--negro); }
+  .nom-salario{ font-size:0.92rem; font-weight:800; color:var(--verde); }
+  .nom-detalles{ display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .nom-det{ font-size:0.72rem; color:#666; }
+  .nom-det span{ color:var(--negro); font-weight:700; }
+
+  /* CONTRATOS */
+  .contrato-item{ background:var(--gris); border-radius:14px; padding:14px; margin-bottom:8px; }
+  .cont-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .cont-code{ font-size:0.72rem; font-weight:800; color:var(--verde); font-family:monospace; }
+  .cont-nombre{ font-size:0.88rem; font-weight:700; color:var(--negro); margin-bottom:2px; }
+  .cont-tipo{ font-size:0.72rem; color:#aaa; }
+  .cont-acciones{ display:flex; gap:6px; margin-top:10px; }
+  .cont-btn{ padding:6px 12px; border-radius:8px; border:none; font-family:'Inter',sans-serif; font-size:0.7rem; font-weight:700; cursor:pointer; }
+
+  /* SERVICIOS B2B */
+  .servicio-item{ background:var(--gris); border-radius:14px; padding:14px; margin-bottom:8px; }
+  .serv-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .serv-empresa{ font-size:0.88rem; font-weight:700; color:var(--negro); }
+  .serv-monto{ font-size:0.92rem; font-weight:800; color:var(--naranja); }
+  .serv-desc{ font-size:0.76rem; color:#666; margin-bottom:8px; }
+  .serv-evidencias{ display:flex; gap:6px; margin-bottom:8px; }
+  .serv-foto{ width:60px; height:60px; border-radius:10px; object-fit:cover; background:#ddd; cursor:pointer; }
+  .serv-estado{ font-size:0.65rem; font-weight:700; padding:3px 8px; border-radius:6px; }
+  .serv-pendiente{ background:rgba(255,140,0,0.1); color:var(--naranja); }
+  .serv-aprobado{ background:rgba(50,205,50,0.1); color:var(--verde); }
+  .serv-rechazado{ background:rgba(255,77,77,0.1); color:var(--rojo); }
+
+  /* MODALES */
+  .modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; z-index:500; align-items:flex-end; }
+  .modal-overlay.show{ display:flex; }
+  .modal-sheet{ background:white; width:100%; max-height:92vh; border-radius:24px 24px 0 0; transform:translateY(100%); transition:0.4s cubic-bezier(0.16,1,0.3,1); display:flex; flex-direction:column; overflow:hidden; }
+  .modal-overlay.show .modal-sheet{ transform:translateY(0); }
+  .drag{ width:36px; height:4px; background:#e0e0e0; border-radius:4px; margin:14px auto 0; flex-shrink:0; }
+  .modal-header{ padding:12px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f5f5f5; flex-shrink:0; }
+  .modal-title{ font-size:1rem; font-weight:800; color:var(--negro); }
+  .close-btn{ width:30px; height:30px; background:var(--gris); border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; border:none; }
+  .close-btn svg{ width:14px; height:14px; stroke:#666; fill:none; stroke-width:2.5; }
+  .modal-body{ overflow-y:auto; padding:16px 16px 32px; flex:1; }
+  .field{ margin-bottom:12px; }
+  .field label{ display:block; font-size:0.68rem; font-weight:700; color:#aaa; text-transform:uppercase; margin-bottom:5px; }
+  .field input,.field select,.field textarea{ width:100%; padding:12px 14px; background:var(--gris); border:1.5px solid #eee; border-radius:12px; font-family:'Inter',sans-serif; font-size:0.9rem; color:var(--negro); outline:none; -webkit-appearance:none; }
+  .field input:focus,.field select:focus{ border-color:var(--verde); }
+  .field input::placeholder{ color:#bbb; }
+  .field select option{ background:white; }
+  .field textarea{ resize:none; height:70px; }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .btn-submit{ width:100%; padding:14px; background:var(--negro); color:white; border:none; border-radius:14px; font-family:'Inter',sans-serif; font-size:0.92rem; font-weight:800; cursor:pointer; margin-top:6px; }
+  .btn-verde{ background:var(--verde); color:white; }
+
+  /* GEOFENCE */
+  .geo-card{ background:linear-gradient(135deg,#f0fff0,#e8ffe8); border:1px solid rgba(50,205,50,0.2); border-radius:16px; padding:16px; margin-bottom:14px; }
+  .geo-status{ display:flex; align-items:center; gap:10px; }
+  .geo-dot{ width:10px; height:10px; border-radius:50%; background:var(--verde); animation:pulse 1.5s infinite; flex-shrink:0; }
+  @keyframes pulse{ 0%,100%{opacity:1}50%{opacity:0.4} }
+  .geo-txt{ font-size:0.82rem; font-weight:700; color:var(--negro); }
+  .geo-sub{ font-size:0.7rem; color:#666; margin-top:2px; }
+
+  /* DESEMPEÑO */
+  .desemp-bar-wrap{ margin-bottom:10px; }
+  .desemp-bar-label{ display:flex; justify-content:space-between; font-size:0.72rem; font-weight:700; color:var(--negro); margin-bottom:5px; }
+  .desemp-bar-track{ height:8px; background:#eee; border-radius:8px; overflow:hidden; }
+  .desemp-bar-fill{ height:100%; border-radius:8px; transition:width 0.6s; }
+  .fill-verde{ background:var(--verde); }
+  .fill-naranja{ background:var(--naranja); }
+  .fill-rojo{ background:var(--rojo); }
+
+  /* FOTO UPLOAD */
+  .foto-upload-area{ border:2px dashed #ddd; border-radius:14px; padding:20px; text-align:center; cursor:pointer; position:relative; background:#fafafa; transition:0.2s; margin-bottom:12px; }
+  .foto-upload-area.filled{ border-color:var(--verde); background:rgba(50,205,50,0.04); }
+  .foto-upload-area svg{ width:28px; height:28px; stroke:#ccc; fill:none; stroke-width:1.5; display:block; margin:0 auto 6px; }
+  .foto-upload-area.filled svg{ stroke:var(--verde); }
+  .foto-upload-area p{ font-size:0.76rem; color:#bbb; }
+  .foto-upload-area.filled p{ color:var(--verde); }
+  .foto-file-input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+  .fotos-preview{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .foto-prev-item{ width:70px; height:70px; border-radius:10px; object-fit:cover; }
+
+  /* SUCURSAL CHIP */
+  .sucursal-chip{ display:flex; align-items:center; gap:6px; background:rgba(50,205,50,0.08); border:1px solid rgba(50,205,50,0.2); border-radius:20px; padding:6px 12px; display:inline-flex; margin-bottom:12px; }
+  .sucursal-chip svg{ width:12px; height:12px; stroke:var(--verde); fill:none; stroke-width:2.5; }
+  .sucursal-chip span{ font-size:0.72rem; font-weight:700; color:var(--verde); }
+
+  .msg-ok{ background:rgba(50,205,50,0.08); border:1px solid rgba(50,205,50,0.2); border-radius:12px; padding:10px 14px; font-size:0.8rem; color:var(--verde); margin-bottom:12px; display:none; }
+  .msg-ok.show{ display:block; }
+  .upload-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:1000; }
+  .upload-overlay.show{ display:flex; }
+  .upload-box{ background:white; border-radius:20px; padding:24px; width:80%; max-width:280px; text-align:center; }
+  .spinner{ width:36px; height:36px; border:3px solid #eee; border-top-color:var(--verde); border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 10px; }
+  .upload-box p{ font-size:0.82rem; color:#666; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--negro); color:white; padding:10px 20px; border-radius:24px; font-size:0.82rem; font-weight:700; opacity:0; transition:0.3s; pointer-events:none; z-index:2000; white-space:nowrap; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .empty-state{ text-align:center; padding:40px 20px; color:#aaa; }
+  .empty-state svg{ width:48px; height:48px; stroke:#ddd; fill:none; stroke-width:1.2; margin:0 auto 12px; display:block; }
+  .empty-state p{ font-size:0.82rem; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="h-left">
+    <button class="back-btn" onclick="window.location.href='dashboard.html'">
+      <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <div>
+      <div class="page-title">RR.HH. PRO</div>
+      <div class="page-sub" id="empresa-sub">Cargando...</div>
+    </div>
+  </div>
+  <div class="header-badge">ERP</div>
+</div>
+
+<div class="tabs-nav">
+  <button class="tab-btn active" onclick="showTab('dashboard',this)">Dashboard</button>
+  <button class="tab-btn" onclick="showTab('empleados',this)">Empleados</button>
+  <button class="tab-btn" onclick="showTab('asistencia',this)">Asistencia</button>
+  <button class="tab-btn" onclick="showTab('nomina',this)">Nómina</button>
+  <button class="tab-btn" onclick="showTab('contratos',this)">Contratos</button>
+  <button class="tab-btn" onclick="showTab('servicios',this)">Servicios B2B</button>
+  <button class="tab-btn" onclick="showTab('geofence',this)">Geofencing</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="section active" id="sec-dashboard">
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-val verde" id="k-empleados">—</div><div class="kpi-lbl">Empleados activos</div></div>
+    <div class="kpi"><div class="kpi-val azul" id="k-asistencia">—</div><div class="kpi-lbl">Asistencia hoy</div></div>
+    <div class="kpi"><div class="kpi-val naranja" id="k-nomina">—</div><div class="kpi-lbl">Nómina mensual</div></div>
+    <div class="kpi"><div class="kpi-val rojo" id="k-alertas">—</div><div class="kpi-lbl">Alertas activas</div></div>
+  </div>
+
+  <div class="sec-title">Sucursal asignada</div>
+  <div class="card" id="sucursal-card">
+    <div id="sucursal-info-dash" style="color:#aaa;font-size:0.82rem;">Sin sucursal asignada</div>
+  </div>
+
+  <div class="sec-title">Alertas de desempeño</div>
+  <div id="alertas-lista">
+    <div class="empty-state"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p>Sin alertas activas</p></div>
+  </div>
+
+  <div class="sec-title">Resumen de asistencia — últimos 7 días</div>
+  <div class="card">
+    <div id="resumen-asist"></div>
+  </div>
+</div>
+
+<!-- EMPLEADOS -->
+<div class="section" id="sec-empleados">
+  <div class="sec-title">Personal <button class="btn-nuevo-sm" onclick="abrirModalEmpleado()">+ Nuevo</button></div>
+  <div id="empleados-lista">
+    <div class="empty-state"><p>Cargando...</p></div>
+  </div>
+</div>
+
+<!-- ASISTENCIA -->
+<div class="section" id="sec-asistencia">
+  <div class="sec-title">Registro de hoy <button class="btn-verde-sm" onclick="abrirRegistroManual()">+ Manual</button></div>
+  <div class="geo-card" id="geo-status-card">
+    <div class="geo-status">
+      <div class="geo-dot"></div>
+      <div>
+        <div class="geo-txt">Geofencing activo</div>
+        <div class="geo-sub" id="geo-info-txt">Verificando ubicación...</div>
+      </div>
+    </div>
+  </div>
+  <div id="asistencia-lista">
+    <div class="empty-state"><p>Cargando asistencia...</p></div>
+  </div>
+</div>
+
+<!-- NÓMINA -->
+<div class="section" id="sec-nomina">
+  <div class="sec-title">Nómina mensual <button class="btn-nuevo-sm" onclick="abrirModalNomina()">+ Agregar</button></div>
+  <div class="card" style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:0.72rem;color:#aaa;font-weight:700;text-transform:uppercase;">Total nómina</div>
+        <div style="font-size:1.6rem;font-weight:900;color:var(--verde);" id="total-nomina">$0.00</div>
+      </div>
+      <button class="btn-verde-sm" onclick="calcularDecimos()">Calcular décimos</button>
+    </div>
+  </div>
+  <div id="nomina-lista">
+    <div class="empty-state"><p>Cargando nómina...</p></div>
+  </div>
+</div>
+
+<!-- CONTRATOS -->
+<div class="section" id="sec-contratos">
+  <div class="sec-title">Contratos <button class="btn-nuevo-sm" onclick="abrirModalContrato()">+ Nuevo</button></div>
+  <div id="contratos-lista">
+    <div class="empty-state"><p>Cargando contratos...</p></div>
+  </div>
+</div>
+
+<!-- SERVICIOS B2B -->
+<div class="section" id="sec-servicios">
+  <div class="sec-title">Servicios externos <button class="btn-nuevo-sm" onclick="abrirModalServicio()">+ Registrar</button></div>
+  <div class="card" style="background:rgba(255,140,0,0.04);border-color:rgba(255,140,0,0.2);margin-bottom:12px;">
+    <div style="font-size:0.78rem;color:#666;line-height:1.5;">⚠️ Los servicios B2B requieren subir <strong>evidencias fotográficas</strong> antes de autorizar el pago. Sin evidencia no se procesa el pago.</div>
+  </div>
+  <div id="servicios-lista">
+    <div class="empty-state"><p>Cargando servicios...</p></div>
+  </div>
+</div>
+
+
+<!-- MODAL DETALLE EMPLEADO -->
+<div class="modal-overlay" id="modal-detalle-emp" onclick="cerrarModal('modal-detalle-emp',event)">
+  <div class="modal-sheet">
+    <div class="drag"></div>
+    <div class="modal-header">
+      <span class="modal-title">Perfil del empleado</span>
+      <button class="close-btn" onclick="document.getElementById('modal-detalle-emp').classList.remove('show')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="detalle-emp-body"></div>
+  </div>
+</div>
+
+<div class="upload-overlay" id="upload-overlay">
+  <div class="upload-box"><div class="spinner"></div><p>Guardando...</p></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const { createClient } = supabase;
+const sb = createClient('https://hfmsyrmkewscnvwynzfq.supabase.co','sb_publishable_d1oLsq70a6ZV33vW3XkRgw_nYcN2Z9v');
+
+let userId='', userData={}, empleados=[], sucursales=[], contratos=[], nominas=[], servicios=[], asistencias=[];
+let empFotoFile=null, servFotosFiles=[], asistFotoFile=null, contratoScanFile=null;
+let editandoEmpId=null;
+
+const SBU=450; // Salario Básico Unificado Ecuador 2026
+
+(async()=>{
+  const { data:{session} } = await sb.auth.getSession();
+  if(!session){ window.location.href='login.html'; return; }
+  userId=session.user.id;
+  const { data:u } = await sb.from('usuarios').select('*').eq('id',userId).single();
+  if(u){
+    userData=u;
+    document.getElementById('empresa-sub').textContent=u.empresa||u.nombre||'Mi empresa';
+  }
+   // Verificar que el plugin esté activo
+  const { data:plugin } = await sb.from('plugins_activados').select('*').eq('proveedor_id',userId).eq('plugin_id','rrhh-pro').single();
+  if(!plugin){
+    // Activar automáticamente si entran directamente
+    await sb.from('plugins_activados').upsert({proveedor_id:userId,plugin_id:'rrhh-pro',nombre:'RR.HH. PRO',activo:true});
+  }
+
+  // Cargar todo en paralelo
+  await cargarTodo();
+  inicializarFechas();
+})();
+
+function inicializarFechas(){
+  const hoy=new Date().toISOString().split('T')[0];
+  const mes=new Date().toISOString().slice(0,7);
+  if(document.getElementById('asist-fecha')) document.getElementById('asist-fecha').value=hoy;
+  if(document.getElementById('asist-hora')) document.getElementById('asist-hora').value=new Date().toTimeString().slice(0,5);
+  if(document.getElementById('nom-periodo')) document.getElementById('nom-periodo').value=mes;
+  if(document.getElementById('serv-fecha')) document.getElementById('serv-fecha').value=hoy;
+  if(document.getElementById('cont-inicio')) document.getElementById('cont-inicio').value=hoy;
+  generarCodigoContrato();
+}
+
+async function cargarTodo(){
+  const [empR,sucR,contrR,nomR,servR,asistR] = await Promise.all([
+    sb.from('rrhh_empleados').select('*').eq('proveedor_id',userId).order('created_at',{ascending:false}),
+    sb.from('sucursales').select('*').eq('proveedor_id',userId),
+    sb.from('rrhh_contratos').select('*').eq('proveedor_id',userId).order('created_at',{ascending:false}),
+    sb.from('rrhh_nomina').select('*').eq('proveedor_id',userId).order('created_at',{ascending:false}),
+    sb.from('rrhh_servicios_b2b').select('*').eq('proveedor_id',userId).order('created_at',{ascending:false}),
+    sb.from('rrhh_asistencia').select('*').eq('proveedor_id',userId).order('fecha',{ascending:false}).limit(50)
+  ]);
+  empleados=empR.data||[];
+  sucursales=sucR.data||[];
+  contratos=contrR.data||[];
+  nominas=nomR.data||[];
+  servicios=servR.data||[];
+  asistencias=asistR.data||[];
+  renderTodo();
+}
+
+function renderTodo(){
+  renderDashboard();
+  renderEmpleados();
+  renderAsistencia();
+  renderNomina();
+  renderContratos();
+  renderServicios();
+  poblarSelects();
+}
+
+function renderDashboard(){
+  const activos=empleados.filter(e=>e.activo!==false).length;
+  const hoy=new Date().toISOString().split('T')[0];
+  const asistHoy=asistencias.filter(a=>a.fecha===hoy).length;
+  const totalNomina=nominas.reduce((s,n)=>s+(n.salario_neto||0),0);
+
+  // Alertas: empleados con atrasos graves
+  const alertas=empleados.filter(e=>(e.score_desempeno||100)<60).length;
+
+  document.getElementById('k-empleados').textContent=activos;
+  document.getElementById('k-asistencia').textContent=asistHoy+'/'+activos;
+  document.getElementById('k-nomina').textContent='$'+totalNomina.toFixed(0);
+  document.getElementById('k-alertas').textContent=alertas;
+
+  // Sucursal principal
+  const sucPrincipal=sucursales.find(s=>s.principal)||sucursales[0];
+  if(sucPrincipal){
+    document.getElementById('sucursal-info-dash').innerHTML=`
+      <div class="sucursal-chip"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>${sucPrincipal.nombre}</span></div>
+      <div style="font-size:0.78rem;color:#666;">${sucPrincipal.ciudad||'—'} · ${sucPrincipal.direccion||'—'}</div>
+      <div style="font-size:0.72rem;color:#aaa;margin-top:4px;">${sucPrincipal.horario||'Horario no configurado'}</div>`;
+  }
+
+  // Alertas lista
+  const alertasEmp=empleados.filter(e=>(e.score_desempeno||100)<70);
+  const alertasLista=document.getElementById('alertas-lista');
+  if(!alertasEmp.length){ alertasLista.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p>Sin alertas activas</p></div>'; }
+  else{
+    alertasLista.innerHTML='';
+    alertasEmp.forEach(e=>{
+      const div=document.createElement('div');
+      div.className='card';
+      div.style.borderColor='rgba(255,77,77,0.2)';
+      div.style.background='rgba(255,77,77,0.02)';
+      div.innerHTML=`<div style="display:flex;align-items:center;gap:10px;"><div style="font-size:1.2rem;">⚠️</div><div><div style="font-size:0.85rem;font-weight:700;color:var(--negro);">${e.nombre}</div><div style="font-size:0.72rem;color:var(--rojo);">Score de desempeño: ${e.score_desempeno||100}% — Riesgo de despido</div></div></div>`;
+      alertasLista.appendChild(div);
+    });
+  }
+
+  // Resumen asistencia 7 días
+  const resumen=document.getElementById('resumen-asist');
+  const dias=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const fechaStr=d.toISOString().split('T')[0];
+    const asistDia=asistencias.filter(a=>a.fecha===fechaStr);
+    dias.push({fecha:fechaStr,dia:d.toLocaleDateString('es-EC',{weekday:'short'}),total:asistDia.length,puntuales:asistDia.filter(a=>a.estado==='puntual').length,tarde:asistDia.filter(a=>a.estado==='tarde').length,faltas:asistDia.filter(a=>a.estado==='falta').length});
+  }
+  resumen.innerHTML=dias.map(d=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f5f5f5;">
+      <div style="font-size:0.72rem;font-weight:700;color:#aaa;width:30px;">${d.dia}</div>
+      <div style="flex:1;height:6px;background:#eee;border-radius:6px;overflow:hidden;"><div style="height:100%;width:${d.total>0?Math.round(d.puntuales/Math.max(activos,1)*100):0}%;background:var(--verde);border-radius:6px;"></div></div>
+      <div style="font-size:0.68rem;color:#aaa;">${d.puntuales}✓ ${d.tarde}⚠ ${d.faltas}✗</div>
+    </div>`).join('');
+}
+
+function renderEmpleados(){
+  const cont=document.getElementById('empleados-lista');
+  if(!empleados.length){ cont.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><p>Sin empleados registrados</p></div>'; return; }
+  cont.innerHTML='';
+  empleados.forEach(e=>{
+    const div=document.createElement('div'); div.className='empleado-item';
+    div.onclick=()=>verDetalleEmpleado(e);
+    const score=e.score_desempeno||100;
+    const badgeClass=score>=80?'badge-activo':score>=60?'badge-pendiente':'badge-riesgo';
+    const badgeTxt=score>=80?'Óptimo':score>=60?'Observación':'Riesgo';
+    const bgColor=e.activo!==false?'rgba(50,205,50,0.1)':'rgba(255,77,77,0.1)';
+    const foto=e.foto||'';
+    div.innerHTML=`
+      <div class="emp-avatar" style="background:${bgColor};">${foto?`<img src="${foto}" alt="">`:`<span style="color:var(--verde);font-size:0.9rem;font-weight:800;">${(e.nombre||'E')[0].toUpperCase()}</span>`}</div>
+      <div class="emp-info">
+        <div class="emp-nombre">${e.nombre||'Sin nombre'}</div>
+        <div class="emp-cargo">${e.cargo||'—'} · ${e.sucursal_nombre||'Sin sucursal'}</div>
+        <div class="emp-cedula">CI: ${e.cedula||'—'} · $${Number(e.salario||0).toFixed(0)}/mes</div>
+      </div>
+      <span class="emp-badge ${badgeClass}">${badgeTxt}</span>`;
+    cont.appendChild(div);
+  });
+}
+
+function renderAsistencia(){
+  const hoy=new Date().toISOString().split('T')[0];
+  const asistHoy=asistencias.filter(a=>a.fecha===hoy);
+  const cont=document.getElementById('asistencia-lista');
+
+  // Geofence info
+  const geoConfig=JSON.parse(localStorage.getItem(`geo_config_${userId}`)||'{}');
+  const sucPrincipal=sucursales.find(s=>s.principal)||sucursales[0];
+  if(sucPrincipal) document.getElementById('geo-info-txt').textContent=`${sucPrincipal.nombre} · ${geoConfig.radio||200}m radio · ${geoConfig.horaIni||'08:00'}-${geoConfig.horaFin||'08:40'}`;
+
+  if(!asistHoy.length){ cont.innerHTML='<div class="empty-state"><p>Sin registros de asistencia hoy</p></div>'; return; }
+  cont.innerHTML='';
+  asistHoy.forEach(a=>{
+    const div=document.createElement('div'); div.className='asist-item';
+    const horaEntrada=a.hora_entrada||'—';
+    const minAtraso=calcularAtraso(horaEntrada,geoConfig.horaFin||'08:40');
+    const atrasoClass=minAtraso<=0?'atraso-ok':minAtraso<=15?'atraso-warning':'atraso-danger';
+    const atrasoTxt=minAtraso<=0?'Puntual':`+${minAtraso} min tarde`;
+    const estClass=a.estado==='puntual'?'est-puntual':a.estado==='tarde'?'est-tarde':'est-falta';
+    div.innerHTML=`
+      <div class="asist-foto">${a.foto_url?`<img src="${a.foto_url}" alt="">`:(a.nombre||'?')[0].toUpperCase()}</div>
+      <div class="asist-info">
+        <div class="asist-nombre">${a.empleado_nombre||'Empleado'}</div>
+        <div class="asist-hora">Entrada: ${horaEntrada}</div>
+        <div class="asist-atraso ${atrasoClass}">${atrasoTxt}</div>
+      </div>
+      <div class="asist-estado ${estClass}">${a.estado||'—'}</div>`;
+    cont.appendChild(div);
+  });
+}
+function calcularAtraso(horaEntrada, horaLimite){
+  if(!horaEntrada||horaEntrada==='—') return 0;
+  const [h1,m1]=horaEntrada.split(':').map(Number);
+  const [h2,m2]=horaLimite.split(':').map(Number);
+  return (h1*60+m1)-(h2*60+m2);
+}
+
+function renderNomina(){
+  const cont=document.getElementById('nomina-lista');
+  let total=0;
+  if(!nominas.length){ cont.innerHTML='<div class="empty-state"><p>Sin registros de nómina</p></div>'; document.getElementById('total-nomina').textContent='$0.00'; return; }
+  cont.innerHTML='';
+  nominas.forEach(n=>{
+    const salBruto=n.salario_base||0;
+    const iess=salBruto*(n.porcentaje_iess||9.45)/100;
+    const descuentos=n.otros_descuentos||0;
+    const salNeto=salBruto-iess-descuentos;
+    total+=salNeto;
+    const decTercero=(salBruto/12).toFixed(2);
+    const decCuarto=(SBU/12).toFixed(2);
+    const div=document.createElement('div'); div.className='nomina-item';
+    div.innerHTML=`
+      <div class="nom-header"><div class="nom-nombre">${n.empleado_nombre||'Empleado'}</div><div class="nom-salario">$${salNeto.toFixed(2)}</div></div>
+      <div class="nom-detalles">
+        <div class="nom-det">Bruto: <span>$${salBruto.toFixed(2)}</span></div>
+        <div class="nom-det">IESS (${n.porcentaje_iess||9.45}%): <span>-$${iess.toFixed(2)}</span></div>
+        <div class="nom-det">Décimo 13°: <span>$${decTercero}</span></div>
+        <div class="nom-det">Décimo 14°: <span>$${decCuarto}</span></div>
+        <div class="nom-det">Banco: <span>${n.banco||'—'}</span></div>
+        <div class="nom-det">Cuenta: <span>${n.cuenta||'—'}</span></div>
+      </div>`;
+    cont.appendChild(div);
+  });
+  document.getElementById('total-nomina').textContent='$'+total.toFixed(2);
+}
+
+function renderContratos(){
+  const cont=document.getElementById('contratos-lista');
+  if(!contratos.length){ cont.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg><p>Sin contratos registrados</p></div>'; return; }
+  cont.innerHTML='';
+  contratos.forEach(c=>{
+    const div=document.createElement('div'); div.className='contrato-item';
+    div.innerHTML=`
+      <div class="cont-header">
+        <div class="cont-code">${c.codigo||'CT-—'}</div>
+        <span class="emp-badge badge-activo">${c.tipo||'—'}</span>
+      </div>
+      <div class="cont-nombre">${c.empleado_nombre||'Empleado'}</div>
+      <div class="cont-tipo">${c.fecha_inicio||'—'} → ${c.fecha_fin||'Indefinido'} · $${Number(c.salario||0).toFixed(2)}/mes</div>
+      <div class="cont-acciones">
+        ${c.scan_url?`<button class="cont-btn" style="background:rgba(50,205,50,0.1);color:var(--verde);" onclick="verContrato('${c.scan_url}')">📄 Ver escáner</button>`:'<span style="font-size:0.7rem;color:#bbb;">Sin escáner</span>'}
+      </div>`;
+    cont.appendChild(div);
+  });
+}
+
+function renderServicios(){
+  const cont=document.getElementById('servicios-lista');
+  if(!servicios.length){ cont.innerHTML='<div class="empty-state"><p>Sin servicios B2B registrados</p></div>'; return; }
+  cont.innerHTML='';
+  servicios.forEach(s=>{
+    const div=document.createElement('div'); div.className='servicio-item';
+    const fotos=s.fotos_evidencia||[];
+    div.innerHTML=`
+      <div class="serv-header"><div class="serv-empresa">${s.empresa||'Empresa'}</div><div class="serv-monto">$${Number(s.monto||0).toFixed(2)}</div></div>
+      <div class="serv-desc">${s.descripcion||'—'}</div>
+      ${fotos.length?`<div class="serv-evidencias">${fotos.map(f=>`<img src="${f}" class="serv-foto" alt="" onclick="window.open('${f}','_blank')">`).join('')}</div>`:'<div style="font-size:0.72rem;color:var(--rojo);margin-bottom:8px;">⚠ Sin evidencias</div>'}
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span class="serv-estado serv-${s.estado||'pendiente'}">${s.estado||'pendiente'}</span>
+        ${s.estado==='pendiente'&&fotos.length?`<button onclick="aprobarServicio('${s.id}')" style="background:rgba(50,205,50,0.1);color:var(--verde);border:none;padding:6px 12px;border-radius:8px;font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:700;cursor:pointer;">✓ Autorizar pago</button>`:''}
+      </div>`;
+    cont.appendChild(div);
+  });
+}
+
+function poblarSelects(){
+  const selects=['nom-empleado','cont-empleado','asist-empleado','emp-sucursal'];
+  selects.forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    if(id==='emp-sucursal'){
+      el.innerHTML='<option value="">Sin sucursal</option>';
+      sucursales.forEach(s=>{ el.innerHTML+=`<option value="${s.id}">${s.nombre}</option>`; });
+    } else {
+      el.innerHTML='<option value="">Seleccionar empleado</option>';
+      empleados.forEach(e=>{ el.innerHTML+=`<option value="${e.id}">${e.nombre}</option>`; });
+    }
+  });
+}
+
+// GUARDAR EMPLEADO
+window.guardarEmpleado=async function(){
+  const nombre=document.getElementById('emp-nombre').value.trim();
+  const cedula=document.getElementById('emp-cedula').value.trim();
+  const cargo=document.getElementById('emp-cargo').value.trim();
+  if(!nombre||!cedula||!cargo){ showToast('Completa nombre, cédula y cargo'); return; }
+  document.getElementById('upload-overlay').classList.add('show');
+  try{
+    let fotoUrl='';
+    if(empFotoFile){
+      const path=`rrhh/${userId}/empleados/${Date.now()}`;
+      const { error } = await sb.storage.from('proveed-media').upload(path,empFotoFile,{upsert:true});
+      if(!error){ const { data } = sb.storage.from('proveed-media').getPublicUrl(path); fotoUrl=data.publicUrl; }
+    }
+    const sucId=document.getElementById('emp-sucursal').value;
+    const suc=sucursales.find(s=>s.id===sucId);
+    const datos={
+      proveedor_id:userId, nombre, cedula, cargo,
+      telefono:document.getElementById('emp-tel').value.trim(),
+      salario:parseFloat(document.getElementById('emp-salario').value)||0,
+      fecha_inicio:document.getElementById('emp-fecha').value,
+      banco:document.getElementById('emp-banco').value.trim(),
+      cuenta:document.getElementById('emp-cuenta').value.trim(),
+      cargas_familiares:parseInt(document.getElementById('emp-cargas').value)||0,
+      sucursal_id:sucId||null,
+      sucursal_nombre:suc?.nombre||'',
+      foto:fotoUrl||null,
+      activo:true,
+      score_desempeno:100
+    };
+    if(editandoEmpId) await sb.from('rrhh_empleados').update(datos).eq('id',editandoEmpId);
+    else await sb.from('rrhh_empleados').insert(datos);
+    document.getElementById('emp-ok').classList.add('show');
+    setTimeout(()=>{ document.getElementById('modal-empleado').classList.remove('show'); document.getElementById('emp-ok').classList.remove('show'); },1500);
+    empFotoFile=null; editandoEmpId=null;
+    await cargarTodo();
+  } catch(e){ showToast('Error: '+e.message); }
+  document.getElementById('upload-overlay').classList.remove('show');
+};
+
+// GUARDAR ASISTENCIA
+window.guardarAsistencia=async function(){
+  const empId=document.getElementById('asist-empleado').value;
+  if(!empId){ showToast('Selecciona un empleado'); return; }
+  const emp=empleados.find(e=>e.id===empId);
+  const horaEntrada=document.getElementById('asist-hora').value;
+  const fecha=document.getElementById('asist-fecha').value;
+  const estado=document.getElementById('asist-estado').value;
+  const geoConfig=JSON.parse(localStorage.getItem(`geo_config_${userId}`)||'{}');
+  const minAtraso=calcularAtraso(horaEntrada,geoConfig.horaFin||'08:40');
+
+  // Calcular score desempeño
+  let puntos=0;
+  if(minAtraso<=0) puntos=0;
+  else if(minAtraso<=10) puntos=5;
+  else if(minAtraso<=30) puntos=20;
+  else puntos=40;
+
+  document.getElementById('upload-overlay').classList.add('show');
+  try{
+    let fotoUrl='';
+    if(asistFotoFile){
+      const path=`rrhh/${userId}/asistencia/${empId}_${Date.now()}`;
+      const { error } = await sb.storage.from('proveed-media').upload(path,asistFotoFile,{upsert:true});
+      if(!error){ const { data } = sb.storage.from('proveed-media').getPublicUrl(path); fotoUrl=data.publicUrl; }
+    }
+    await sb.from('rrhh_asistencia').insert({
+      proveedor_id:userId, empleado_id:empId,
+      empleado_nombre:emp?.nombre||'',
+      fecha, hora_entrada:horaEntrada,
+      estado, minutos_atraso:Math.max(0,minAtraso),
+      foto_url:fotoUrl||null,
+      validado_geo:false
+    });
+    // Actualizar score del empleado
+    const nuevoScore=Math.max(0,(emp?.score_desempeno||100)-puntos);
+    await sb.from('rrhh_empleados').update({score_desempeno:nuevoScore}).eq('id',empId);
+    document.getElementById('modal-asistencia').classList.remove('show');
+    asistFotoFile=null;
+    await cargarTodo();
+    showToast('✓ Asistencia registrada');
+  } catch(e){ showToast('Error: '+e.message); }
+  document.getElementById('upload-overlay').classList.remove('show');
+};
+
+// GUARDAR NÓMINA
+window.guardarNomina=async function(){
+  const empId=document.getElementById('nom-empleado').value;
+  if(!empId){ showToast('Selecciona un empleado'); return; }
+  const emp=empleados.find(e=>e.id===empId);
+  const salBase=parseFloat(document.getElementById('nom-salario').value)||emp?.salario||SBU;
+  const iessPorc=parseFloat(document.getElementById('nom-iess').value)||9.45;
+  const iess=salBase*iessPorc/100;
+  const descuentos=parseFloat(document.getElementById('nom-descuentos').value)||0;
+  const salNeto=salBase-iess-descuentos;
+  document.getElementById('upload-overlay').classList.add('show');
+  try{
+    await sb.from('rrhh_nomina').upsert({
+      proveedor_id:userId, empleado_id:empId,
+      empleado_nombre:emp?.nombre||'',
+      salario_base:salBase, porcentaje_iess:iessPorc,
+      otros_descuentos:descuentos, salario_neto:salNeto,
+      banco:emp?.banco||'', cuenta:emp?.cuenta||'',
+      periodo:document.getElementById('nom-periodo').value,
+      decimo_tercero:parseFloat((salBase/12).toFixed(2)),
+      decimo_cuarto:parseFloat((SBU/12).toFixed(2))
+    },{onConflict:'proveedor_id,empleado_id,periodo'});
+    document.getElementById('modal-nomina').classList.remove('show');
+    await cargarTodo();
+    showToast('✓ Nómina guardada');
+  } catch(e){ showToast('Error: '+e.message); }
+  document.getElementById('upload-overlay').classList.remove('show');
+};
